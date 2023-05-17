@@ -1,12 +1,14 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import avatar from './../assets/profile.png'
+import styles from "./../styles/Username.module.css";
 
 function Username() {
 
     return (
         <div className="container mx-auto">
-            <div className="flex  h-screen">
-                <div>
+            <div className="flex justify-center items-center h-screen">
+                <div className={ styles.glass } >
 
                     <div className="title flex flex-col items-center">
                         <h4 className="text-5xl font-bold"> 
@@ -19,11 +21,22 @@ function Username() {
 
                     <form className="py-1">
                         <div className="profile flex justify-center py-4 "> 
-                            <img src=""  alt="avtar"/> 
+                            <img 
+                                className={ styles.profile_img } 
+                                src={avatar}  
+                                alt="avtar"
+                            /> 
                         </div>
                         <div className="textbox flex flex-col items-center gap-6"> 
-                            <input type="text"  placeholder="Username" />
-                            <button type='submit' > Submit </button>
+                            <input 
+                                className={ styles.textbox } 
+                                type="text"  
+                                placeholder="Username" 
+                            />
+                            <button 
+                                className={ styles.btn }  
+                                type='submit' 
+                            > Submit </button>
                         </div>
 
                         <div className="text-center py-4">
