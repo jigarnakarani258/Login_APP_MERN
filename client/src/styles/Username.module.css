@@ -1,10 +1,33 @@
-.glass{
+.glass {
     background: rgba(255, 255, 255, 0.55);
     border-radius: 16px;
     box-shadow: 0 4px 30px #4747470b;
+    -webkit-backdrop-filter: blur(7.1px);
     backdrop-filter: blur(7.1px);
     border: 1px solid rgba(255, 255, 255, 0.3);
-    @apply border-4 border-gray-50 shrink-0 h-3/4 w-[30%] rounded-3xl py-20 px-7 min-w-max;
+    border-top-color: rgba(255, 255, 255, 0.3);
+    border-top-width: 1px;
+    border-right-color: rgba(255, 255, 255, 0.3);
+    border-right-width: 1px;
+    border-bottom-color: rgba(255, 255, 255, 0.3);
+    border-bottom-width: 1px;
+    border-left-color: rgba(255, 255, 255, 0.3);
+    border-left-width: 1px;
+
+    min-width: max-content;
+    flex-shrink: 0;
+    border-radius: 1.5rem;
+    border-width: 4px;
+    --tw-border-opacity: 1;
+    border-color: rgb(249 250 251 / var(--tw-border-opacity));
+
+    height: auto;
+    width: auto;
+    padding: 15px;
+    max-width: 350px;
+    height: auto;
+
+    @apply border-4 border-gray-50 shrink-0 rounded-3xl;
 }
 
 .profile_img{
