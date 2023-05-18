@@ -43,3 +43,13 @@ function passwordVerify(error = {}, values){
 
     return error;
 }
+
+/** validate Reset page password */
+export async function resetPasswordValidate(values){
+    const errors = passwordVerify({}, values);
+
+    if( values.password != values.confirmPassword ){
+        errors.exist = toast.error("Password and confirm password are not match!!")
+    }
+    return errors;
+}
