@@ -17,3 +17,29 @@ function usernameVerify(error = {}, values){
     return error;
 }
 
+/** validate login page password */
+export async function passwordValidate(values){
+    const errors = passwordVerify({}, values);
+    return errors;
+}
+
+/** validate password */
+function passwordVerify(error = {}, values){
+
+    const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+
+    if(!values.password){
+        error.password = toast.error('password Required...!');
+    }else if(values.password.includes(" ")){
+        error.password = toast.error('password can not contains blank space...!')
+    }else if(values.password.length < 4){
+        error.password = toast.error('Password length must be more then 4 character!')
+    }
+    else if(!specialChars.test(values.password)){
+        error.password = toast.error('Password contains atleast one special character!')
+    }else{
+
+    }
+
+    return error;
+}
