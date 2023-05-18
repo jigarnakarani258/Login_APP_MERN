@@ -6,22 +6,44 @@ export async function usernameValidate(values){
     return errors;
 }
 
-/** validate username */
-function usernameVerify(error = {}, values){
-    if(!values.username){
-        error.username = toast.error('Username Required...!');
-    }else if(values.username.includes(" ")){
-        error.username = toast.error('Invalid Username...!')
-    }
-
-    return error;
-}
-
 /** validate login page password */
 export async function passwordValidate(values){
     const errors = passwordVerify({}, values);
     return errors;
 }
+
+/** validate Reset page password */
+export async function resetPasswordValidate(values){
+    const errors = passwordVerify({}, values);
+
+    if( values.password != values.confirmPassword ){
+        errors.exist = toast.error("Password and confirm password are not match!!")
+    }
+    return errors;
+}
+
+/** validate register form */
+export async function registerFormValiadate(values){
+    const errors = usernameVerify({}, values);
+    passwordVerify(errors, values);
+    emailVerify(errors, values);
+    
+    return errors;
+}
+
+/** validate username */
+function usernameVerify(error = {}, values){
+    if(!values.username){
+        error.username = toast.error('Username Required...!');
+    }else if(values.username.includes(" ")){
+        error.username = toast.error('Username can not contains blank space...!')
+    }else{
+        
+    }
+
+    return error;
+}
+
 
 /** validate password */
 function passwordVerify(error = {}, values){
@@ -44,12 +66,19 @@ function passwordVerify(error = {}, values){
     return error;
 }
 
-/** validate Reset page password */
-export async function resetPasswordValidate(values){
-    const errors = passwordVerify({}, values);
 
-    if( values.password != values.confirmPassword ){
-        errors.exist = toast.error("Password and confirm password are not match!!")
+/** validate email */
+function emailVerify(error = {}, values){
+
+    if(!values.email){
+        error.email = toast.error('email Required...!');
+    }else if(values.email.includes(" ")){
+        error.email = toast.error('email can not contains blank space...!')
+    }else if(!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)){
+        error.email = toast.error("Invalid email address...!")
+    }else{
+
     }
-    return errors;
+
+    return error;
 }
