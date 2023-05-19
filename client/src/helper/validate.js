@@ -31,6 +31,15 @@ export async function registerFormValiadate(values){
     return errors;
 }
 
+/** validate profile page */
+export async function profilePageValiadate(values){
+    const errors = emailVerify({}, values);
+    firstnameVerify(errors, values);
+    lastnameVerify(errors, values);
+
+    return errors;
+}
+
 /** validate username */
 function usernameVerify(error = {}, values){
     if(!values.username){
@@ -38,7 +47,7 @@ function usernameVerify(error = {}, values){
     }else if(values.username.includes(" ")){
         error.username = toast.error('Username can not contains blank space...!')
     }else{
-        
+
     }
 
     return error;
@@ -76,6 +85,32 @@ function emailVerify(error = {}, values){
         error.email = toast.error('email can not contains blank space...!')
     }else if(!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)){
         error.email = toast.error("Invalid email address...!")
+    }else{
+
+    }
+
+    return error;
+}
+
+/** validate firstname */
+function firstnameVerify(error = {}, values){
+    if(!values.firstname){
+        error.firstname = toast.error('firstname Required...!');
+    }else if(values.firstname.includes(" ")){
+        error.firstname = toast.error('firstname can not contains blank space...!')
+    }else{
+
+    }
+
+    return error;
+}
+
+/** validate lastname */
+function lastnameVerify(error = {}, values){
+    if(!values.lastname){
+        error.lastname = toast.error('lastname Required...!');
+    }else if(values.lastname.includes(" ")){
+        error.lastname = toast.error('lastname can not contains blank space...!')
     }else{
 
     }
