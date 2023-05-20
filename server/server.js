@@ -1,9 +1,10 @@
-import express, { application } from "express";
+import express from "express";
 import dotenv from "dotenv";
 dotenv.config();
 import cors from "cors";
 import morgan from "morgan";
 import connect from "./database/connnection.js";
+import router from "./routers/route.js";
 
 const app = express();
 
@@ -12,6 +13,8 @@ app.use(express.json());
 app.use(cors());
 app.use(morgan('tiny'))
 app.disable('x-powerd-by')   ///less hackers know about our stack
+
+app.use( '/api' , router)
 
 app.get('/', (req, res) => {
     res.send({
