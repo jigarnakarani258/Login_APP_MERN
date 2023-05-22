@@ -1,4 +1,5 @@
 import User from './../models/User.model.js';
+import bcrypt from "bcryptjs";
 
 /****** Post Method for Register ******/
 /****** URL:- http://localhost:3001/api/register ******/
@@ -13,9 +14,81 @@ import User from './../models/User.model.js';
     profile : ''
  */ 
 export function Register( req , res ) {
-    res.send({
-        "message" : "Register"
-    })
+
+    try {
+
+        const { username , password , email , profile } = req.body ;
+
+        //check user is already exist or not 
+        const existUsername = new Promise( (resolve , reject) => {
+            User.findOne({ username } , (err , user)=>{
+                if(err){ 
+                    reject( new Error(err) );
+                }
+                if(user){
+                    reject( new Error("User is already exist, please provide unique username") );
+                }
+
+                resolve()
+            })
+        })
+
+        //check email is already exist or not 
+        const existEmail = new Promise( (resolve , reject) => {
+            User.findOne({ email } , (err , user)=>{
+                if(err){ 
+                    reject( new Error(err) );
+                }
+                if(user){
+                    reject( new Error("Email is already exist, please provide unique Email") );
+                }
+
+                resolve()
+            })
+        })
+
+        Promise.all( [existUsername , existEmail] )
+            .then({
+                if(password){
+                    bcrypt.hash( password , 10 )
+                        .then( hasedpassword => {
+
+                            //create model object for storeing data in mongodb
+                            const user = new User({
+                                username : username ,
+                                password : hasedpassword,
+                                email : email ,
+                                profile : profile
+                            })
+
+                            //save data in mongodb
+                            user.save()
+                                .then( () => {
+                                        return res.status(201).send({
+                                            "message" : "User registered sucessfully!!"
+                                        })
+                                })
+                                .catch( error => {
+                                        return res.status(500).send({ error })
+                                })
+                        })
+                        .catch( error => {
+                            return res.status(500).send({
+                                error : "Enable to hased password"
+                            })
+                        })
+                }
+            })
+            .catch( error => {
+                return res.status(500).send(error) ;
+            })
+
+         
+        
+    } catch (error) {
+        res.status(500).send(error)
+    }
+    
 }
 
 /****** Post Method for Login ******/
