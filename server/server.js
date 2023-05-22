@@ -14,7 +14,6 @@ app.use(cors());
 app.use(morgan('tiny'))
 app.disable('x-powerd-by')   ///less hackers know about our stack
 
-app.use( '/api' , router)
 
 app.get('/', (req, res) => {
     res.send({
@@ -22,6 +21,9 @@ app.get('/', (req, res) => {
         message: "Home page"
     })
 })
+
+//Add Url in router
+app.use( '/api' , router)
 
 /*************Start server only when database connect sucessfully *****************/
 connect()

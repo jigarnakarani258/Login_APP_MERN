@@ -1,7 +1,7 @@
-import express from "express";
+import {Router} from "express";
 import  {Register, Login, GetUser, UpdateUser , GenarateOTP , VerifyOTP , CraeteResetSession, ResetPassword
 }  from "../controllers/appController.js";
-const router = express.Router();
+const router = Router();
 
 
 /************ POST method  *************/

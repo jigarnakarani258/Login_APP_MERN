@@ -1,94 +1,82 @@
 import User from './../models/User.model.js';
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 /****** Post Method for Register ******/
 /****** URL:- http://localhost:3001/api/register ******/
- /*@param
-    email: 'j@gmail.com',
-    username: 'jpatel',
-    password: 'j@patel'
-    firstname : 'Jigar'
-    lastname : 'Patel'
-    mobile : 9900990099
-    address : 'Surat'
-    profile : ''
- */ 
-export function Register( req , res ) {
+/*@param
+   email: 'j@gmail.com',
+   username: 'jpatel',
+   password: 'j@patel'
+   firstname : 'Jigar'
+   lastname : 'Patel'
+   mobile : 9900990099
+   address : 'Surat'
+   profile : ''
+*/
+export function Register(req, res) {
 
     try {
 
-        const { username , password , email , profile } = req.body ;
+        const { username, password, email, profile } = req.body;
 
         //check user is already exist or not 
-        const existUsername = new Promise( (resolve , reject) => {
-            User.findOne({ username } , (err , user)=>{
-                if(err){ 
-                    reject( new Error(err) );
+        User.findOne({ username })
+            .then(user => {
+                if (user) {
+                    return res.status(400).send({ error: "User is already exist, please provide unique username!!" })
                 }
-                if(user){
-                    reject( new Error("User is already exist, please provide unique username") );
-                }
-
-                resolve()
             })
-        })
+            .catch(error => {
+                return res.status(404).send({ error })
+            })
 
         //check email is already exist or not 
-        const existEmail = new Promise( (resolve , reject) => {
-            User.findOne({ email } , (err , user)=>{
-                if(err){ 
-                    reject( new Error(err) );
+        User.findOne({ email })
+            .then(user => {
+                if (user) {
+                    return res.status(400).send({ error: "Email is already exist, please provide unique Email!!" })
                 }
-                if(user){
-                    reject( new Error("Email is already exist, please provide unique Email") );
-                }
-
-                resolve()
             })
-        })
+            .catch(error => {
+                return res.status(404).send({ error })
+            })
 
-        Promise.all( [existUsername , existEmail] )
-            .then({
-                if(password){
-                    bcrypt.hash( password , 10 )
-                        .then( hasedpassword => {
+        //compare password 
+        if (password) {
+            bcrypt.hash(password, 10)
+                .then(hasedpassword => {
 
-                            //create model object for storeing data in mongodb
-                            const user = new User({
-                                username : username ,
-                                password : hasedpassword,
-                                email : email ,
-                                profile : profile
-                            })
+                    //create model object for storeing data in mongodb
+                    const user = new User({
+                        username: username,
+                        password: hasedpassword,
+                        email: email,
+                        profile: profile
+                    })
 
-                            //save data in mongodb
-                            user.save()
-                                .then( () => {
-                                        return res.status(201).send({
-                                            "message" : "User registered sucessfully!!"
-                                        })
-                                })
-                                .catch( error => {
-                                        return res.status(500).send({ error })
-                                })
-                        })
-                        .catch( error => {
-                            return res.status(500).send({
-                                error : "Enable to hased password"
+                    //save data in mongodb
+                    user.save()
+                        .then(() => {
+                            return res.status(201).send({
+                                "message": "User registered sucessfully!!"
                             })
                         })
-                }
-            })
-            .catch( error => {
-                return res.status(500).send(error) ;
-            })
+                        .catch(error => {
+                            return res.status(500).send({ error })
+                        })
+                })
+                .catch(error => {
+                    return res.status(500).send({
+                        error: "Enable to hased password"
+                    })
+                })
+        }
 
-         
-        
     } catch (error) {
-        res.status(500).send(error)
+        res.status(500).send({ error })
     }
-    
+
 }
 
 /****** Post Method for Login ******/
@@ -98,9 +86,48 @@ export function Register( req , res ) {
     password: 'j@patel'
  */
 export function Login( req , res ) {
-    res.send({
-        "message" : "Login"
-    })
+
+    const { username , password } = req.body;
+
+    try {
+
+        User.findOne( {username} )
+            .then( user => {
+                bcrypt.compare(password , user.password)
+                    .then( user => {
+                            
+                        //create jwt token 
+                        const token = jwt.sign( 
+                                            { 
+                                                userId : user._id ,
+                                                username : user.username
+                                            }, 
+                                            'JWTSecrateKey',
+                                            {
+                                                "expiresIn" : "24h"
+                                            }
+                                     );
+                            
+                        return res.status(200).send({ 
+                            "message": "User Login Sucessfully!!",
+                            username : user.username,
+                            "token" : token
+                         })
+                                    
+                    })
+                    .catch(error => {
+                        return res.status(400).send({ error : "Invalid Password!!" })
+                    })
+            
+            })
+            .catch(error => {
+                return res.status(404).send({ error : "Username not Found!!" })
+            })
+    } 
+    catch (error) {
+        return res.status(500).send({ error })
+    }
+    
 }
 
 
