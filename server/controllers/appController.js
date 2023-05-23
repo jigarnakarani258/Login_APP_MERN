@@ -6,7 +6,7 @@ import OTPGenerator from "otp-generator";
 export async function verifyUser(req , res , next) {
 
     try {
-        const { username } =  req.method == 'GET' ?  req.params : req.query ;
+        const { username } =  req.method == 'GET' ?  req.query : req.body ;
 
         const findUser = await User.findOne({ username });
 
@@ -206,24 +206,20 @@ export function Login( req , res ) {
         const { userId } = req.user ;
 
         try {
-            if(id){
-                const body = req.body;
+           
+            const body = req.body;
                 
-                //update user data
-                let updateduser = await User.updateOne({ _id : userId } , body ) 
+            //update user data
+            let updateduser = await User.updateOne({ _id : userId } , body ) 
 
-                if(!updateduser)
-                {
-                    return res.status(500).send({ error: "user not updated!!" })
-                }
-                else{
-                    return res.status(201).send({ "message": "user updated sucessfully!!" })
-                }
-            }
-            else
+            if(!updateduser)
             {
-                return res.status(500).send({ error: "please provide user id for update user!!" })
+                return res.status(500).send({ error: "user not updated!!" })
             }
+            else{
+                return res.status(201).send({ "message": "user updated sucessfully!!" })
+            }
+            
         } 
         catch (error) {
             return res.status(500).send({error})
@@ -250,7 +246,7 @@ export function Login( req , res ) {
 export function VerifyOTP( req , res ) {
     
     const { code } = req.query ;
-    
+
     if(  parseInt(req.app.locals.OTP) === parseInt(code))
     {
         //reset OTP value
@@ -269,16 +265,53 @@ export function VerifyOTP( req , res ) {
 /****** GET Method for CraeteResetSession ******/
 /****** URL:- http://localhost:3001/api/craeteResetSession ******/
 export function CraeteResetSession( req , res ) {
-    res.send({
-        "message" : "CraeteResetSession"
-    })
+    
+    if(req.app.locals.resetSesion){
+
+        //allow access to this route only once
+        req.app.locals.resetSesion = false ;
+
+        return res.status(201).send({ "message" : "Access Granted for reset password!!" })
+    }
+
+    return res.status(401).send({ "message" : "Session expired for reset password!!" })
 }
 
 //update user password when user have valid session
 /****** PUT Method for ResetPassword ******/
 /****** URL:- http://localhost:3001/api/resetPassword ******/
-export function ResetPassword( req , res ) {
-    res.send({
-        "message" : "ResetPassword"
-    })
+export async function ResetPassword( req , res ) {
+    
+    if(!req.app.locals.resetSession) 
+        return res.status(401).send({ "message" : "Session expired for reset password!!" })
+
+    try {
+        const { username , password } = req.body ;
+
+        User.findOne({ username })
+        .then(user => {
+            bcrypt.hash(password,10)
+                .then( async (hashedpassword) => {
+
+                    let updatepassword = await User.updateOne( {username : user.username} , { password:hashedpassword} ) 
+                    if(!updatepassword){
+                        return res.status(500).send({ error: "password not updated!!" })
+                    }
+                    else{
+                        req.app.locals.resetSession = false; // reset session
+                        return res.status(201).send({ "message": "Reset Password Sucessfully!!" })
+                    }
+                })
+                .catch(error => {
+                    return res.status(404).send({ error : "Enable to hashed password" })
+                })
+        })
+        .catch(error => {
+            return res.status(404).send({ error : `Can't find user with this username ${username}!!` })
+        })
+
+    }
+    catch (error) {
+        return res.status(401).send({ error })
+    }
 }

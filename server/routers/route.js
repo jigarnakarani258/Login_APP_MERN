@@ -20,7 +20,7 @@ router.route('/createResetSession').get( CraeteResetSession ) //reset all the va
 
 /************ PUT method  *************/
 router.route('/updateUser').put( Auth , UpdateUser )   //update user profile
-router.route('/resetPassword').put( ResetPassword )  //reset password 
+router.route('/resetPassword').put( verifyUser,ResetPassword )  //reset password 
 
 
 export default router;
