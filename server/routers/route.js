@@ -1,6 +1,6 @@
 import {Router} from "express";
-import  {Register, Login, GetUser, UpdateUser , GenarateOTP , VerifyOTP , CraeteResetSession, ResetPassword
-}  from "../controllers/appController.js";
+import  {Register, Login, GetUser, UpdateUser , GenarateOTP , VerifyOTP , CraeteResetSession, ResetPassword,
+    verifyUser }  from "../controllers/appController.js";
 const router = Router();
 
 
@@ -8,7 +8,7 @@ const router = Router();
 router.route('/register').post( Register )  //register route
 router.route('/registerMail').post( ( req , res ) => { res.json('registerMail route')}) //send the mail
 router.route('/authenticate').post( ( req , res ) => { res.json('authenticate route')})  //authenticate user
-router.route('/login').post( Login ) //login in app
+router.route('/login').post( verifyUser , Login ) //login in app
 
 
 /************ GET method  *************/

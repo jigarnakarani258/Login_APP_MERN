@@ -2,6 +2,25 @@ import User from './../models/User.model.js';
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
+export async function verifyUser(req , res , next) {
+
+    try {
+        const { username } =  req.method == 'GET' ?  req.params : req.query ;
+
+        const findUser = await User.findOne({ username });
+
+        if (!findUser) {
+            return res.status(400).send({ error: "Can't find user!!" })
+        }
+
+        next();
+    }
+    catch (error) {
+        return res.status(404).send({ error: "Authentication error!!" })
+    }
+
+}
+
 /****** Post Method for Register ******/
 /****** URL:- http://localhost:3001/api/register ******/
 /*@param
@@ -140,9 +159,27 @@ export function Login( req , res ) {
     password: 'j@patel'
  */
     export function GetUser( req , res ) {
-        res.send({
-            "message" : "GetUser"
-        })
+        
+        const { username } = req.params ;
+
+        try {
+
+            if (!username) {
+                return res.status(400).send({ error: "Invalid username!!" })
+            }
+            
+            const user = User.findOne( {username} );
+            if (!user) {
+                return res.status(400).send({ error: `Can't find user with this username ${username}!!` })
+            }
+
+            return res.status(200).send(user)
+        } 
+        catch (error) {
+            return res.status(500).send({ error: "Can't find user data !!" })
+        }
+
+        
     }
 
 /****** PUT Method for updateUser ******/
