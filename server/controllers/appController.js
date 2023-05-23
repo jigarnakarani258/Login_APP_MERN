@@ -158,7 +158,7 @@ export function Login( req , res ) {
     username: 'jpatel',
     password: 'j@patel'
  */
-    export function GetUser( req , res ) {
+    export async function GetUser( req , res ) {
         
         const { username } = req.params ;
 
@@ -168,7 +168,8 @@ export function Login( req , res ) {
                 return res.status(400).send({ error: "Invalid username!!" })
             }
             
-            const user = User.findOne( {username} );
+            const user = await User.findOne( {username} );
+            
             if (!user) {
                 return res.status(400).send({ error: `Can't find user with this username ${username}!!` })
             }

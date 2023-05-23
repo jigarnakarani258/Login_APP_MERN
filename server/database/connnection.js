@@ -4,9 +4,10 @@ import { MongoMemoryServer } from "mongodb-memory-server";
 async function connect(){
 
     const mongod = await MongoMemoryServer.create();
-    const getUri = mongod.getUri();
+    //const getUri = mongod.getUri();
 
-    const dbconnection = await mongoose.connect(getUri) ;
+    //connect mongo db atlas directly
+    const dbconnection = await mongoose.connect(process.env.DATA_BASE) ;
     console.log("Database connected");
 
     return dbconnection;
