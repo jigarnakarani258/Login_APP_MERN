@@ -174,7 +174,11 @@ export function Login( req , res ) {
                 return res.status(400).send({ error: `Can't find user with this username ${username}!!` })
             }
 
-            return res.status(200).send(user)
+            //Remove password form user , it is confidentional
+            //mongoose return unnecessary data with object so convert it into json
+            const { password , ...rest } = Object.assign( {} , user.toJSON())
+
+            return res.status(200).send(rest)
         } 
         catch (error) {
             return res.status(500).send({ error: "Can't find user data !!" })
@@ -195,10 +199,32 @@ export function Login( req , res ) {
     profile : ''
     }
  */ 
-    export function UpdateUser( req , res ) {
-        res.send({
-            "message" : "UpdateUser"
-        })
+    export async function UpdateUser( req , res ) {
+
+        const { id } = req.query 
+        try {
+            if(id){
+                const body = req.body;
+                
+                //update user data
+                let updateduser = await User.updateOne({ _id : id } , body ) 
+
+                if(!updateduser)
+                {
+                    return res.status(500).send({ error: "user not updated!!" })
+                }
+                else{
+                    return res.status(201).send({ "message": "user updated sucessfully!!" })
+                }
+            }
+            else
+            {
+                return res.status(500).send({ error: "please provide user id for update user!!" })
+            }
+        } 
+        catch (error) {
+            return res.status(500).send({error})
+        }
     }
 
 
