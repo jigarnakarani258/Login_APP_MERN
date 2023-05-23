@@ -3,11 +3,12 @@ import  {Register, Login, GetUser, UpdateUser , GenarateOTP , VerifyOTP , Craete
     verifyUser }  from "../controllers/appController.js";
 const router = Router();
 import Auth , { localVariables } from "./../middlewares/auth.js";
+import {registerMail} from "./../controllers/mailer.js";
 
 /************ POST method  *************/
 router.route('/register').post( Register )  //register route
-router.route('/registerMail').post( ( req , res ) => { res.json('registerMail route')}) //send the mail
-router.route('/authenticate').post( ( req , res ) => { res.json('authenticate route')})  //authenticate user
+router.route('/registerMail').post( registerMail ) //send the mail
+router.route('/authenticate').post( verifyUser , ( req , res ) => { res.json('authenticate route')})  //authenticate user
 router.route('/login').post( verifyUser , Login ) //login in app
 
 
