@@ -14,7 +14,7 @@ router.route('/login').post( verifyUser , Login ) //login in app
 /************ GET method  *************/
 router.route('/user/:username').get( GetUser )   //user with username
 router.route('/generateOTP').get( verifyUser , localVariables,  GenarateOTP )   //generate random OTP
-router.route('/verifyOTP').get( VerifyOTP)       //verify generated OTP
+router.route('/verifyOTP').get( verifyUser , VerifyOTP)       //verify generated OTP
 router.route('/createResetSession').get( CraeteResetSession ) //reset all the variables
 
 

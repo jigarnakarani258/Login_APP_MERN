@@ -248,9 +248,21 @@ export function Login( req , res ) {
 /****** GET Method for VerifyOTP ******/
 /****** URL:- http://localhost:3001/api/verifyOTP ******/
 export function VerifyOTP( req , res ) {
-    res.send({
-        "message" : "VerifyOTP"
-    })
+    
+    const { code } = req.query ;
+    
+    if(  parseInt(req.app.locals.OTP) === parseInt(code))
+    {
+        //reset OTP value
+        req.app.locals.OTP = null ;
+
+        //start session for reset password
+        req.app.locals.resetSesion = true ;
+
+        return res.status(201).send({ "message" : "Verify OTP successfully!!" })
+    }
+
+    return res.status(400).send({ "message" : "Invalid OTP!!" })
 }
 
 //sucessfully redirect user when OTP is valid
