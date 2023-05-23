@@ -8,11 +8,11 @@ import jwt from "jsonwebtoken";
    email: 'j@gmail.com',
    username: 'jpatel',
    password: 'j@patel'
+   profile : ''
    firstname : 'Jigar'
    lastname : 'Patel'
    mobile : 9900990099
    address : 'Surat'
-   profile : ''
 */
 export function Register(req, res) {
 
@@ -59,7 +59,8 @@ export function Register(req, res) {
                     user.save()
                         .then(() => {
                             return res.status(201).send({
-                                "message": "User registered sucessfully!!"
+                                "message": "User registered sucessfully!!",
+                                "username" : username
                             })
                         })
                         .catch(error => {
@@ -102,15 +103,15 @@ export function Login( req , res ) {
                                                 userId : user._id ,
                                                 username : user.username
                                             }, 
-                                            'JWTSecrateKey',
+                                            process.env.JWT_SECRET_KEY,
                                             {
                                                 "expiresIn" : "24h"
                                             }
                                      );
-                            
+                            console.log(user.username);
                         return res.status(200).send({ 
                             "message": "User Login Sucessfully!!",
-                            username : user.username,
+                            "username" : user.username,
                             "token" : token
                          })
                                     

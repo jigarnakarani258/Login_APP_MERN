@@ -1,1 +1,11 @@
 LoginApp using MERN Stack.
+
+
+server.js
+npm install bcryptjs cors dotenv 
+express jsonwebtoken mongodb-memory-server mongoose
+morgan multer nodemon
+
+
+client.js
+npm install react-scripts
