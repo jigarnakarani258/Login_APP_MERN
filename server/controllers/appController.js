@@ -39,7 +39,7 @@ export function Register(req, res) {
                 }
             })
             .catch(error => {
-                return res.status(404).send({ error })
+                return res.status(404).send(error)
             })
 
         //compare password 
@@ -60,7 +60,7 @@ export function Register(req, res) {
                         .then(() => {
                             return res.status(201).send({
                                 "message": "User registered sucessfully!!",
-                                "username" : username
+                                 username
                             })
                         })
                         .catch(error => {
@@ -95,8 +95,9 @@ export function Login( req , res ) {
         User.findOne( {username} )
             .then( user => {
                 bcrypt.compare(password , user.password)
-                    .then( user => {
+                    .then( passwordCheck  => {
                             
+                        if(!passwordCheck) return res.status(400).send({ error: "Don't have Password"});
                         //create jwt token 
                         const token = jwt.sign( 
                                             { 
