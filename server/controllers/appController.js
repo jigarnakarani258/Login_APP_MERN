@@ -1,6 +1,7 @@
 import User from './../models/User.model.js';
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import OTPGenerator from "otp-generator";
 
 export async function verifyUser(req , res , next) {
 
@@ -201,13 +202,15 @@ export function Login( req , res ) {
  */ 
     export async function UpdateUser( req , res ) {
 
-        const { id } = req.query 
+        //const { id } = req.query 
+        const { userId } = req.user ;
+
         try {
             if(id){
                 const body = req.body;
                 
                 //update user data
-                let updateduser = await User.updateOne({ _id : id } , body ) 
+                let updateduser = await User.updateOne({ _id : userId } , body ) 
 
                 if(!updateduser)
                 {
@@ -230,10 +233,16 @@ export function Login( req , res ) {
 
 /****** GET Method for GenarateOTP ******/
 /****** URL:- http://localhost:3001/api/genarateOTP ******/
-    export function GenarateOTP( req , res ) {
-        res.send({
-            "message" : "GenarateOTP"
-        })
+    export async function GenarateOTP( req , res ) {
+        
+        req.app.locals.OTP = await OTPGenerator.generate(6 , {
+                                    lowerCaseAlphabets  : false, 
+                                    upperCaseAlphabets  : false, 
+                                    specialChars : false
+                                  }
+                            )
+
+        res.status(201).send({ code : req.app.locals.OTP })
     }
 
 /****** GET Method for VerifyOTP ******/

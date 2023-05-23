@@ -2,7 +2,7 @@ LoginApp using MERN Stack.
 
 
 server.js
-npm install bcryptjs cors dotenv express jsonwebtoken mongodb-memory-server mongoose morgan multer nodemon
+npm install bcryptjs cors dotenv express jsonwebtoken mongodb-memory-server mongoose morgan multer nodemon otp-generator
 
 
 client.js
