@@ -156,8 +156,7 @@ export function Login( req , res ) {
 /****** GET Method for GetUser ******/
 /****** URL:- http://localhost:3001/api/user/:username ******/
  /*@param
-    username: 'jpatel',
-    password: 'j@patel'
+    username: 'jpatel'
  */
     export async function GetUser( req , res ) {
         
@@ -191,7 +190,7 @@ export function Login( req , res ) {
 /****** PUT Method for updateUser ******/
 /****** URL:- http://localhost:3001/api/updateUser ******/
  /*@param{
-    id: '<userid>'
+    "header" : "<token>"
     }
    @body{
     firstname : 'Jigar'
