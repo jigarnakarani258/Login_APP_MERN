@@ -64,8 +64,34 @@ export async function login( { username , password }  ){
 
 
 //*** update User function ***// 
+export async function updateUser( updateUserData  ){
+    try {
+
+        const token = await localStorage.getItem('token')
+    
+        const data  =  await axois.put('/api/updateUser',
+                                        updateUserData ,
+                                        { headers : { "Authorization":`Bearer ${token}`} }
+                                     ) ;
+        return Promise.resolve({ data })
+       
+    } 
+    catch (error) {
+       return Promise.resolve( { error : "Couldn't update user profile...!!"} ) ;
+    }
+} 
 
 
+//*** generate OTP  ***// 
+export async function generateOTP( username ){
 
+    try {
 
-//*** authenticate User ***// 
+        const { data } =  await axois.get('/api/generateOTP' , username ) ;
+        return Promise.resolve({ data })
+       
+    } 
+    catch (error) {
+       return Promise.resolve( { error : "Password doesn't match...!!"} ) ;
+    }
+} 
