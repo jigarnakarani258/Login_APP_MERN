@@ -1,97 +1,124 @@
 import axois from "axois";
 
+axois.defaults.baseURL = process.env.REACT_APP_SERVER_DOMAIN
+
 /**************Make API requests **************/
 
-//*** authenticate User ***// 
-export async function authenticate( username ){
-
-    try {
-        return await axois.post('/api/authenticate' , {username}) ;
-    } 
-    catch (error) {
-       return { error : "Username doesn't exist..!!"} ;
-    }
-} 
+//*** authenticate User ***//
+export async function authenticate(username) {
+  try {
+    return await axois.post("/api/authenticate", { username });
+  } catch (error) {
+    return { error: "Username doesn't exist..!!" };
+  }
+}
 
 //*** get User details***//
-export async function getUser( {username} ){
+export async function getUser({ username }) {
+  try {
+    const { data } = await axois.get(`/api/user/:${username}`);
+    return { data };
+  } catch (error) {
+    return { error: "Username doesn't exist..!!" };
+  }
+}
 
-    try {
-        const { data } =  await axois.get(`/api/user/:${username}` ) ;
-        return {data} ;
-    } 
-    catch (error) {
-       return { error : "Username doesn't exist..!!"} ;
+//*** register User function***//
+export async function registerUser(credentials) {
+  try {
+    const {
+      data: { message },
+      status,
+    } = await axois.post("/api/register", credentials);
+    let { username, email } = credentials;
+
+    /***send Email ***/
+    if (status === 201) {
+      await axois.post("/api/registerMail", {
+        username,
+        userEmail: email,
+        text: message,
+      });
     }
-} 
 
-
-//*** register User function***// 
-export async function registerUser( credentials  ){
-
-    try {
-        const { data : { message } , status } =  await axois.post('/api/register', credentials ) ;
-        let { username , email } = credentials ;
-
-        /***send Email ***/
-        if( status === 201)
-        {
-            await axois.post('/api/registerMail' , { username , userEmail : email , text : message })
-        }
-
-        return Promise.resolve(message)
-    } 
-    catch (error) {
-       return Promise.resolve({error}) ;
-    }
-} 
-
+    return Promise.resolve(message);
+  } catch (error) {
+    return Promise.resolve({ error });
+  }
+}
 
 //*** login User function ***//
-export async function login( { username , password }  ){
-
-    try {
-       
-        if(username){
-            const { data } =  await axois.post('/api/login', { username , password } ) ;
-            return Promise.resolve({ data })
-        }
-    } 
-    catch (error) {
-       return Promise.resolve( { error : "Password doesn't match...!!"} ) ;
+export async function login({ username, password }) {
+  try {
+    if (username) {
+      const { data } = await axois.post("/api/login", { username, password });
+      return Promise.resolve({ data });
     }
-} 
+  } catch (error) {
+    return Promise.resolve({ error: "Password doesn't match...!!" });
+  }
+}
 
+//*** update User function ***//
+export async function updateUser(updateUserData) {
+  try {
+    const token = await localStorage.getItem("token");
 
-//*** update User function ***// 
-export async function updateUser( updateUserData  ){
-    try {
+    const data = await axois.put("/api/updateUser", updateUserData, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return Promise.resolve({ data });
+  } catch (error) {
+    return Promise.resolve({ error: "Couldn't update user profile...!!" });
+  }
+}
 
-        const token = await localStorage.getItem('token')
-    
-        const data  =  await axois.put('/api/updateUser',
-                                        updateUserData ,
-                                        { headers : { "Authorization":`Bearer ${token}`} }
-                                     ) ;
-        return Promise.resolve({ data })
-       
-    } 
-    catch (error) {
-       return Promise.resolve( { error : "Couldn't update user profile...!!"} ) ;
+//*** generate OTP  ***//
+export async function generateOTP(username) {
+  try {
+    const { data : {code} , status } = await axois.get("/api/generateOTP", {
+      params: { username },
+    });
+
+    //send mail with the OTP
+    if(status === 201){
+        let { data : {email} } = await getUser( username ) ;
+        let message = `Your password recovery OTP is ${code}. Verify code and recover your password..`
+        let subject = "Password recovery OTP"
+        await axois.post("/api/registerMail", {
+            username,
+            userEmail: email,
+            text: message,
+            subject
+          });
     }
-} 
 
+    return Promise.resolve(code);
+  } catch (error) {
+    return Promise.reject({ error });
+  }
+}
 
-//*** generate OTP  ***// 
-export async function generateOTP( username ){
-
+//*** verify OTP  ***//
+export async function verifyOTP( { username , code }) {
     try {
+      const { data , status } = await axois.get("/api/verifyOTP", {
+        params: { username , code },
+      });
+      return { data , status };
 
-        const { data } =  await axois.get('/api/generateOTP' , username ) ;
-        return Promise.resolve({ data })
-       
-    } 
-    catch (error) {
-       return Promise.resolve( { error : "Password doesn't match...!!"} ) ;
+    } catch (error) {
+        return Promise.reject({ error });
     }
-} 
+  }
+
+//*** Reset Password ***//
+export async function resetPassword( { username , password }) {
+    try {
+      const { data , status } = await axois.put("/api/resetPassword", { username , password });
+      return Promise.resolve({ data , status });
+
+    } catch (error) {
+        return Promise.reject({ error });
+    }
+  }
