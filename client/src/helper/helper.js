@@ -1,13 +1,13 @@
-import axois from "axois";
+import axios from "axios";
 
-axois.defaults.baseURL = process.env.REACT_APP_SERVER_DOMAIN
+axios.defaults.baseURL = process.env.REACT_APP_SERVER_DOMAIN
 
 /**************Make API requests **************/
 
 //*** authenticate User ***//
 export async function authenticate(username) {
   try {
-    return await axois.post("/api/authenticate", { username });
+    return await axios.post("/api/authenticate", { username });
   } catch (error) {
     return { error: "Username doesn't exist..!!" };
   }
@@ -16,7 +16,7 @@ export async function authenticate(username) {
 //*** get User details***//
 export async function getUser({ username }) {
   try {
-    const { data } = await axois.get(`/api/user/:${username}`);
+    const { data } = await axios.get(`/api/user/:${username}`);
     return { data };
   } catch (error) {
     return { error: "Username doesn't exist..!!" };
@@ -29,12 +29,12 @@ export async function registerUser(credentials) {
     const {
       data: { message },
       status,
-    } = await axois.post("/api/register", credentials);
+    } = await axios.post("/api/register", credentials);
     let { username, email } = credentials;
 
     /***send Email ***/
     if (status === 201) {
-      await axois.post("/api/registerMail", {
+      await axios.post("/api/registerMail", {
         username,
         userEmail: email,
         text: message,
@@ -51,7 +51,7 @@ export async function registerUser(credentials) {
 export async function login({ username, password }) {
   try {
     if (username) {
-      const { data } = await axois.post("/api/login", { username, password });
+      const { data } = await axios.post("/api/login", { username, password });
       return Promise.resolve({ data });
     }
   } catch (error) {
@@ -64,7 +64,7 @@ export async function updateUser(updateUserData) {
   try {
     const token = await localStorage.getItem("token");
 
-    const data = await axois.put("/api/updateUser", updateUserData, {
+    const data = await axios.put("/api/updateUser", updateUserData, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return Promise.resolve({ data });
@@ -76,7 +76,7 @@ export async function updateUser(updateUserData) {
 //*** generate OTP  ***//
 export async function generateOTP(username) {
   try {
-    const { data : {code} , status } = await axois.get("/api/generateOTP", {
+    const { data : {code} , status } = await axios.get("/api/generateOTP", {
       params: { username },
     });
 
@@ -85,7 +85,7 @@ export async function generateOTP(username) {
         let { data : {email} } = await getUser( username ) ;
         let message = `Your password recovery OTP is ${code}. Verify code and recover your password..`
         let subject = "Password recovery OTP"
-        await axois.post("/api/registerMail", {
+        await axios.post("/api/registerMail", {
             username,
             userEmail: email,
             text: message,
@@ -102,7 +102,7 @@ export async function generateOTP(username) {
 //*** verify OTP  ***//
 export async function verifyOTP( { username , code }) {
     try {
-      const { data , status } = await axois.get("/api/verifyOTP", {
+      const { data , status } = await axios.get("/api/verifyOTP", {
         params: { username , code },
       });
       return { data , status };
@@ -115,7 +115,7 @@ export async function verifyOTP( { username , code }) {
 //*** Reset Password ***//
 export async function resetPassword( { username , password }) {
     try {
-      const { data , status } = await axois.put("/api/resetPassword", { username , password });
+      const { data , status } = await axios.put("/api/resetPassword", { username , password });
       return Promise.resolve({ data , status });
 
     } catch (error) {
