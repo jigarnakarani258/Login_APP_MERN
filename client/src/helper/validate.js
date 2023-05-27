@@ -27,7 +27,7 @@ export async function passwordValidate(values){
 export async function resetPasswordValidate(values){
     const errors = passwordVerify({}, values);
 
-    if( values.password != values.confirmPassword ){
+    if( values.password !== values.confirmPassword ){
         errors.exist = toast.error("Password and confirm password are not match!!")
     }
     return errors;
@@ -68,7 +68,7 @@ function usernameVerify(error = {}, values){
 /** validate password */
 function passwordVerify(error = {}, values){
 
-    const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+    const specialChars = /[`!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/;
 
     if(!values.password){
         error.password = toast.error('password Required...!');

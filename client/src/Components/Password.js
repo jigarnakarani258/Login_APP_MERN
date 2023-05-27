@@ -5,8 +5,16 @@ import styles from "./../styles/Username.module.css";
 import { Toaster } from "react-hot-toast";
 import { useFormik } from "formik";
 import  {passwordValidate}  from "./../helper/validate";
+import useFetch from "../hooks/fetch.hook";
+import { useAuthStore } from "../store/store";
 
 function Password() {
+
+    const username = useAuthStore(state => state.auth.username);
+  
+    const  getData  = useFetch(`/user/${username}`);
+
+    const { isLoading , apiData, serverError , status } = getData ;
 
     const formik = useFormik({
         initialValues : {
@@ -21,6 +29,12 @@ function Password() {
 
     })
 
+    
+    if(isLoading) 
+        return <h1 className='text-2xl font-bold'>isLoading</h1>;
+    if(serverError) 
+        return <h1 className='text-xl text-red-500'>{serverError.message}</h1>
+
     return (
         <div className="container mx-auto">
 
@@ -31,7 +45,7 @@ function Password() {
 
                     <div className="title flex flex-col items-center">
                         <h4 className="text-5xl font-bold mt-2"> 
-                            Enter Password 
+                            Hello {apiData?.firstName || apiData?.username} 
                         </h4>
                         <span className="py-4 text-xl w-2/3 text-center text-gray-500"> 
                              Explore more by connecting with us.. 
@@ -43,7 +57,7 @@ function Password() {
                         <div className="profile flex justify-center py-4 "> 
                             <img 
                                 className={ styles.profile_img } 
-                                src={avatar}  
+                                src={ apiData?.profile || avatar}  
                                 alt="avtar"
                             /> 
                         </div>
