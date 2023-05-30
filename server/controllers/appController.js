@@ -34,33 +34,23 @@ export async function verifyUser(req , res , next) {
    mobile : 9900990099
    address : 'Surat'
 */
-export function Register(req, res) {
+export async function Register(req, res) {
 
     try {
 
         const { username, password, email, profile } = req.body;
 
         //check user is already exist or not 
-        User.findOne({ username })
-            .then(user => {
-                if (user) {
-                    return res.status(400).send({ error: "User is already exist, please provide unique username!!" })
-                }
-            })
-            .catch(error => {
-                return res.status(404).send({ error })
-            })
+        let findUser = await User.findOne({ username })
+        if(findUser){
+            return res.status(400).send({ error: "User is already exist, please provide unique username!!" })
+        }
 
         //check email is already exist or not 
-        User.findOne({ email })
-            .then(user => {
-                if (user) {
-                    return res.status(400).send({ error: "Email is already exist, please provide unique Email!!" })
-                }
-            })
-            .catch(error => {
-                return res.status(404).send(error)
-            })
+        let findEmail = await User.findOne({ email })
+        if(findEmail){
+            return res.status(400).send({ error: "Email is already exist, please provide unique Email!!" })
+        }
 
         //compare password 
         if (password) {
