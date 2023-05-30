@@ -8,9 +8,13 @@ import router from "./routers/route.js";
 
 const app = express();
 
+const corsOptions ={
+    origin:'http://localhost:3000'
+}
+app.use(cors(corsOptions));
+
 /** Middlewares **/
-app.use(express.json());
-app.use(cors());
+app.use(express.json());;
 app.use(morgan('tiny'))
 app.disable('x-powerd-by')   ///less hackers know about our stack
 
