@@ -2,15 +2,12 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import avatar from './../assets/profile.png'
 import styles from "./../styles/Username.module.css";
-import toast , { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 import { useFormik } from "formik";
 import { registerFormValiadate } from "./../helper/validate";
 import imageToBase64Converter from "../helper/imageToBase64Converter";
-import { registerUser } from "../helper/helper";
 
 function Register() {
-
-  
 
     const [file, setFile] = useState()
     const formik = useFormik({
@@ -24,14 +21,6 @@ function Register() {
         validateOnChange: false,
         onSubmit: async (values) => {
             values = await Object.assign(values, { profile: file || '' })
-            let registerUserResult =  registerUser(values) ;
-            console.log("component "-registerUserResult);
-            toast.promise( registerUserResult , {
-                loading: 'Creating User..!!',
-                autoClose: 5000,
-                success : <b>Register User Successfully!!</b> ,
-                error : <b>User couldn't register..!!</b>
-            })
             console.log(values);
         }
 

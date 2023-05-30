@@ -69,7 +69,7 @@ export async function Register(req, res) {
                     user.save()
                         .then(() => {
                             return res.status(201).send({
-                                 message : "User registered sucessfully!!",
+                                "message": "User registered sucessfully!!",
                                  username
                             })
                         })
