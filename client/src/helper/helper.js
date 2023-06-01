@@ -26,24 +26,23 @@ export async function getUser({ username }) {
 //*** register User function***//
 export async function registerUser(credentials) {
   try {
-    const {
-      data: { message },
-      status,
-    } = await axios.post("/api/register", credentials);
+    let res = await axios.post("/api/register", credentials);
     let { username, email } = credentials;
 
+    console.log(res.status , res.data.message);
     /***send Email ***/
-    if (status === 201) {
-      await axios.post("/api/registerMail", {
-        username,
-        userEmail: email,
-        text: message,
-      });
-    }
+    // if (res.status === 201) {
+    //   await axios.post("/api/registerMail", {
+    //     username,
+    //     userEmail: email,
+    //     text: res.data.message,
+    //   });
+    // }
 
-    return Promise.resolve(message);
+    return Promise.resolve(res);
   } catch (error) {
-    return Promise.resolve({ error });
+    console.log(error.response.data.error);
+    return Promise.reject(error.response.data.error);
   }
 }
 
