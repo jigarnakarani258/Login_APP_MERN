@@ -12,7 +12,7 @@ function Password() {
 
     const username = useAuthStore(state => state.auth.username);
   
-    const  getData  = useFetch(`/user/${username}`);
+    const  [ getData ]  = useFetch(`/user/${username}`);
 
     const { isLoading , apiData, serverError , status } = getData ;
 
