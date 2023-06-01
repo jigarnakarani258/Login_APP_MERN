@@ -7,7 +7,7 @@ export default async function Auth( req , res , next) {
         const token = req.headers.authorization.split(" ")[1] ;
 
         //retriving the user details from logged in user. 
-        const decodedToken = await jwt.verify( token , process.env.JWT_SECRET ,)
+        const decodedToken = await jwt.verify( token , process.env.JWT_SECRET_KEY )
        
         req.user = decodedToken ;
        
