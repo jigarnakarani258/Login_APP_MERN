@@ -107,7 +107,7 @@ export function Login( req , res ) {
                 bcrypt.compare(password , user.password)
                     .then( passwordCheck  => {
                             
-                        if(!passwordCheck) return res.status(400).send({ error: "Don't have Password"});
+                        if(!passwordCheck) return res.status(400).send({ error: "Invalid Password , please enter right password"});
                         //create jwt token 
                         const token = jwt.sign( 
                                             { 
