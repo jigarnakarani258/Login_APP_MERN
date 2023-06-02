@@ -1,13 +1,4 @@
 
----------------------------------2-6-23--------------------
-app.js
-//update home route 
-{
-    path: '/',
-    element: <Username/>
-  },
-
-
 register component 
 
 const navigate = useNavigate();
@@ -149,7 +140,7 @@ function Profile() {
     }
 
     // logout user handler function
-    function userLogout(params) {
+    function userLogout() {
         localStorage.removeItem('token');
         navigate('/')
     }
@@ -272,7 +263,7 @@ export async function getUsernameFromToken(username) {
       return Promise.reject("Can't find token") ;
     }
     
-    let decode = jwt_decode(token) ;
+    let decode = jwt_decode(token)
     return decode;
 
 }
@@ -305,7 +296,7 @@ export default function useFetch(query) {
       try {
         setData((prev) => ({ ...prev, isLoading: true }));
 
-        const { username } = await getUsernameFromToken();
+        const { username } = !query ? await getUsernameFromToken() : '';
         const { data, status } = !query ?  await axios.get(`/api/user/${username}`)  : await axios.get(`/api/${query}`);
 
         if (status === 200) {
@@ -327,3 +318,102 @@ export default function useFetch(query) {
 
   return [getData, setData];
 }
+
+
+
+
+
+
+
+create middlewares folder and create auth.js file in client 
+
+
+import { Navigate } from "react-router-dom";
+import { useAuthStore } from "../store/store";
+
+export const AuthorizeUser = ({ children }) => {
+
+    const token = localStorage.getItem('token')
+
+    if (!token) {
+        return <Navigate to={'/'} replace={true} ></Navigate>
+    }
+
+    return children;
+}
+
+export const ProtectRoutePassword = ({ children }) => {
+    
+    const username = useAuthStore(state => state.auth.username);
+ 
+    if (!username) {
+        return <Navigate to={'/'} replace={true} ></Navigate>
+    }
+
+    return children;
+}
+
+
+
+
+
+App.js of client code
+
+import './App.css';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+
+/**Import All Components **/
+import  Username     from "./Components/Username";
+import  Password     from "./Components/Password";
+import  Register     from "./Components/Register";
+import  Profile      from "./Components/Profile";
+import  Recovery     from "./Components/Recovery";
+import  Reset        from "./Components/Reset";
+import  PageNotFound from "./Components/PageNotFound";
+
+
+/***Auth Middlewares ***/
+import { AuthorizeUser , ProtectRoutePassword } from './middlewares/auth';
+
+/*root routes*/
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <Username/>
+  },
+  {
+    path: '/password',
+    element: <ProtectRoutePassword> <Password/>  </ProtectRoutePassword>
+  },
+  {
+    path: '/register',
+    element: <Register/>
+  },
+  {
+    path: '/profile',
+    element: <AuthorizeUser> <Profile/> </AuthorizeUser>
+  },
+  {
+    path: '/recovery',
+    element: <Recovery/>
+  },
+  {
+    path: '/reset',
+    element: <Reset/>
+  },
+  {
+    path: '*',
+    element: <PageNotFound/>
+  }
+])
+
+function App() {
+  return (
+    <div className="App">
+      <RouterProvider router={router}>
+      </RouterProvider>
+    </div>
+  );
+}
+
+export default App;
