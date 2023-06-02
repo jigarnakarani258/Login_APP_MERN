@@ -1,0 +1,993 @@
+LoginApp using MERN Stack.
+
+
+server.js
+npm install bcryptjs cors dotenv express jsonwebtoken mongodb-memory-server mongoose morgan multer nodemon otp-generator 
+npm install nodemailer mailgen
+
+
+client.js
+npm install react-scripts axios zustand
+
+
+---------------------------------2-6-23--------------------
+
+
+register component 
+
+const navigate = useNavigate();
+registerPromise.then( function(){ navigate('/')})
+
+
+helper.js
+//*** login User function ***//
+export async function login({ username, password }) {
+  try {
+    if (username) {
+      const res = await axios.post("/api/login", { username, password });
+      //console.log(res);
+      return Promise.resolve(res);
+    }
+  }
+  catch (error) {
+      //console.log(error.response.data.error);
+      return Promise.reject(error.response.data.error);
+    }
+
+}
+
+
+password component 
+
+import React from "react";
+import { Link , useNavigate } from "react-router-dom";
+import avatar from './../assets/profile.png'
+import styles from "./../styles/Username.module.css";
+import toast , { Toaster } from "react-hot-toast";
+import { useFormik } from "formik";
+import  {passwordValidate}  from "./../helper/validate";
+import useFetch from "../hooks/fetch.hook";
+import { useAuthStore } from "../store/store";
+import { login } from "../helper/helper";
+
+function Password() {
+
+    const navigate = useNavigate();
+    const username = useAuthStore(state => state.auth.username);
+  
+    const  [getData]  = useFetch(`/user/${username}`);
+
+    const { isLoading , apiData, serverError , status } = getData ;
+
+    const formik = useFormik({
+        initialValues : {
+            password : ''
+        },
+        validate : passwordValidate ,
+        validateOnBlur : false ,
+        validateOnChange : false ,
+        onSubmit : async values => {
+            
+            let loginPromise = login({ username, password : values.password })
+            toast.promise(loginPromise, {
+              loading: 'Checking...',
+              success : <b>Login Successfully...!</b>,
+              error : <b>Password Not Match!</b>
+            });
+      
+            loginPromise.then(res => {
+              let { token } = res.data;
+              localStorage.setItem('token', token);
+              navigate('/profile')
+            }).catch( err=> {
+                navigate('/password')
+            })
+        }
+
+    })
+
+
+
+Profile component
+
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import avatar from './../assets/profile.png'
+import toast, { Toaster } from "react-hot-toast";
+import { useFormik } from "formik";
+import { profilePageValiadate } from "./../helper/validate";
+import imageToBase64Converter from "../helper/imageToBase64Converter";
+
+import styles from "./../styles/Username.module.css";
+import extendStyles from "./../styles/Profile.module.css";
+
+import useFetch from "../hooks/fetch.hook";
+import { useAuthStore } from "../store/store";
+import { updateUser } from "../helper/helper";
+
+function Profile() {
+
+
+    const navigate = useNavigate();
+  
+    const  [getData]  = useFetch();
+
+    const { isLoading , apiData, serverError , status } = getData ;
+
+    const [file, setFile] = useState()
+    const formik = useFormik({
+        initialValues: {
+            firstName: apiData?.firstName || '',
+            lastName:  apiData?.lastName || '',
+            mobile:  apiData?.mobile || '',
+            email:  apiData?.email || '',
+            address:  apiData?.address || ''
+        },
+        enableReinitialize : true ,
+        validate: profilePageValiadate,
+        validateOnBlur: false,
+        validateOnChange: false,
+        onSubmit: async (values) => {
+            values = await Object.assign(values, { profile: file || apiData?.profile || '' })
+           
+            let updateProfilePromise = updateUser(values)
+            toast.promise(updateProfilePromise, {
+              loading: 'Updating...',
+              success : <b>Update Profile Successfully...!</b>,
+              error : <b> Could not update Profile..!!</b>
+            });
+      
+        }
+
+    })
+
+    if(isLoading) 
+    return <h1 className='text-2xl font-bold'>isLoading</h1>;
+    if(serverError) 
+        return <h1 className='text-xl text-red-500'>{serverError.message}</h1>
+
+    /**** Formik does not support file upload so we need to create this file handler function ****/
+    const onUpload = async (event) => {
+
+        const base64 = await imageToBase64Converter(event.target.files[0])
+        setFile(base64);
+    }
+
+    // logout user handler function
+    function userLogout() {
+        localStorage.removeItem('token');
+        navigate('/')
+    }
+
+    return (
+        <div className="container mx-auto">
+
+            <Toaster position="top-center" reverseOrder={false}></Toaster>
+
+            <div className="flex justify-center items-center h-screen">
+                <div className={` ${styles.glass} ${extendStyles.glass} `} >
+                    <div className="title flex flex-col items-center">
+                        <h4 className="text-5xl font-bold mt-2">
+                            Profile
+                        </h4>
+                        <span className="py-4 text-xl w-2/3 text-center text-gray-500">
+                            You can update the details.
+                        </span>
+                    </div>
+
+                    <form className="py-1" onSubmit={formik.handleSubmit} >
+
+                        <div className="profile flex justify-center py-4 ">
+
+                            <label htmlFor="profile">
+                                <img
+                                    className={` ${styles.profile_img} ${extendStyles.profile_img} `}
+                                    src={ apiData?.profile || file || avatar}
+                                    alt="avtar"
+                                />
+                            </label>
+                            <input
+                                type="file"
+                                id='profile'
+                                name="profile"
+                                onChange={onUpload}
+                            />
+
+                        </div>
+
+                        <div className="textbox flex flex-col items-center gap-6">
+
+                            <div className="name flex w-3/4 gap-10">
+                                <input
+                                    className={` ${styles.textbox} ${extendStyles.textbox} `}
+                                    type="text"
+                                    placeholder="First Name*"
+                                    {...formik.getFieldProps('firstName')}
+                                />
+                                <input
+                                    className={` ${styles.textbox} ${extendStyles.textbox} `}
+                                    type="text"
+                                    placeholder="Last Name*"
+                                    {...formik.getFieldProps('lastName')}
+                                />
+                            </div>
+
+                            <div className="name flex w-3/4 gap-10">
+                                <input
+                                    className={` ${styles.textbox} ${extendStyles.textbox} `}
+                                    type="text"
+                                    placeholder="Mobile No*"
+                                    {...formik.getFieldProps('mobile')}
+                                />
+                                <input
+                                    className={` ${styles.textbox} ${extendStyles.textbox} `}
+                                    type="text"
+                                    placeholder="Email*"
+                                    {...formik.getFieldProps('email')}
+                                />
+                            </div>
+
+                            <input
+                                className={` ${styles.textbox} ${extendStyles.textbox} `}
+                                type="text"
+                                placeholder="Address*"
+                                {...formik.getFieldProps('address')}
+                            />
+                            <button
+                                className={styles.btn}
+                                type='submit'
+                            > Update </button>
+
+                        </div>
+
+                        <div className="text-center py-4">
+                            <span className='text-gray-500'>
+                                Come back later?
+                                <button onClick={userLogout} className='text-red-500' to="/">Logout</button>
+                            </span>
+                        </div>
+                      
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export default Profile;
+
+
+
+
+
+install jwt-decode in react project
+and craete function in helper.js file
+
+helper.js
+import jwt_decode from "jwt-decode";
+
+//*** to get username from token  ***//
+export async function getUsernameFromToken(username) {
+ 
+    const token = localStorage.getItem("token") ;
+
+    if(!token)
+    {
+      return Promise.reject("Can't find token") ;
+    }
+    
+    let decode = jwt_decode(token)
+    return decode;
+
+}
+
+
+
+
+
+
+fetch.hook 
+
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { getUsernameFromToken } from "../helper/helper";
+
+axios.defaults.baseURL = process.env.REACT_APP_SERVER_DOMAIN;
+
+/****Custom Hook ****/
+export default function useFetch(query) {
+  const [getData, setData] = useState({
+    isLoading: false,
+    apiData: undefined,
+    status: null,
+    serverError: null,
+  });
+
+  useEffect(() => {
+    
+    const fetchData = async () => {
+      try {
+        setData((prev) => ({ ...prev, isLoading: true }));
+
+        const { username } = !query ? await getUsernameFromToken() : '';
+        const { data, status } = !query ?  await axios.get(`/api/user/${username}`)  : await axios.get(`/api/${query}`);
+
+        if (status === 200) {
+          setData((prev) => ({ ...prev, isLoading: false }));
+          setData((prev) => ({ ...prev, apiData: data, status: status }));
+        }
+
+        setData((prev) => ({ ...prev, isLoading: false }));
+      } 
+      catch (error) {
+        setData((prev) => ({ ...prev, isLoading: false, serverError: error }));
+      }
+    };
+
+    fetchData();
+
+
+  }, [query]);
+
+  return [getData, setData];
+}
+
+
+
+
+
+
+
+create middlewares folder and create auth.js file in client 
+
+
+import { Navigate } from "react-router-dom";
+import { useAuthStore } from "../store/store";
+
+export const AuthorizeUser = ({ children }) => {
+
+    const token = localStorage.getItem('token')
+
+    if (!token) {
+        return <Navigate to={'/'} replace={true} ></Navigate>
+    }
+
+    return children;
+}
+
+export const ProtectRoutePassword = ({ children }) => {
+    
+    const username = useAuthStore(state => state.auth.username);
+ 
+    if (!username) {
+        return <Navigate to={'/'} replace={true} ></Navigate>
+    }
+
+    return children;
+}
+
+
+
+
+
+App.js of client code
+
+import './App.css';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+
+/**Import All Components **/
+import  Username     from "./Components/Username";
+import  Password     from "./Components/Password";
+import  Register     from "./Components/Register";
+import  Profile      from "./Components/Profile";
+import  Recovery     from "./Components/Recovery";
+import  Reset        from "./Components/Reset";
+import  PageNotFound from "./Components/PageNotFound";
+
+
+/***Auth Middlewares ***/
+import { AuthorizeUser , ProtectRoutePassword } from './middlewares/auth';
+
+/*root routes*/
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <Username/>
+  },
+  {
+    path: '/password',
+    element: <ProtectRoutePassword> <Password/>  </ProtectRoutePassword>
+  },
+  {
+    path: '/register',
+    element: <Register/>
+  },
+  {
+    path: '/profile',
+    element: <AuthorizeUser> <Profile/> </AuthorizeUser>
+  },
+  {
+    path: '/recovery',
+    element: <Recovery/>
+  },
+  {
+    path: '/reset',
+    element: <Reset/>
+  },
+  {
+    path: '*',
+    element: <PageNotFound/>
+  }
+])
+
+function App() {
+  return (
+    <div className="App">
+      <RouterProvider router={router}>
+      </RouterProvider>
+    </div>
+  );
+}
+
+export default App;
+
+
+Recovery - start
+import React, { useEffect, useState } from "react";
+import styles from "./../styles/Username.module.css";
+import toast ,{ Toaster } from "react-hot-toast";
+import { useAuthStore } from "../store/store";
+import { generateOTP } from "../helper/helper";
+
+function Recovery() {
+
+    const { username } = useAuthStore(state => state.auth);
+
+    const [ OTP , setOTP] = useState() ;
+
+    useEffect( () => {
+
+        generateOTP(username)
+            .then( otp => {
+
+                if(otp){
+                   return toast.success('OTP has been send to your registerd email..!!')
+                }
+                return toast.error('Problem while generating OTP..!!')
+            })
+
+    } , [username] )
+
+    return (
+        <div className="container mx-auto">
+
+            <Toaster position="top-center" reverseOrder={false}></Toaster>
+
+            <div className="flex justify-center items-center h-screen">
+                <div className={styles.glass} >
+
+                    <div className="title flex flex-col items-center">
+                        <h4 className="text-5xl font-bold mt-2">
+                            Recovery
+                        </h4>
+                        <span className="py-4 text-xl w-2/3 text-center text-gray-500">
+                            Enter OTP for recover password..
+                        </span>
+                    </div>
+
+                    <form className="pt-25"  >
+
+                        <div className="textbox flex flex-col items-center gap-6">
+
+                            <span className="py-4 text-sm text-left text-gray-500">
+                                Enter 6 Digit OTP sent to your email address..
+                            </span>
+                            <input
+                                className={styles.textbox}
+                                onChange={ event => setOTP(event.target.value) }
+                                type="text"
+                                placeholder="OTP"
+                            />
+                        
+                            <button
+                                className={styles.btn}
+                                type='submit'
+                            > Recover Password </button>
+
+                        </div>
+
+                        <div className="text-center py-4">
+                            <span>
+                                Can't get OTP?
+                                <button
+                                    className={"text-red-500"}
+                                > Resend OTP </button>
+                            </span>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    )
+}
+
+export default Recovery;
+
+
+
+
+helper.js
+
+import axios from "axios";
+import jwt_decode from "jwt-decode";
+axios.defaults.baseURL = process.env.REACT_APP_SERVER_DOMAIN
+
+/**************Make API requests **************/
+
+//*** to get username from token  ***//
+export async function getUsernameFromToken(username) {
+ 
+    const token = localStorage.getItem("token") ;
+
+    if(!token)
+    {
+      return Promise.reject("Can't find token") ;
+    }
+    
+    let decode = jwt_decode(token)
+    return decode;
+
+}
+
+
+//*** authenticate User ***//
+export async function authenticate(username) {
+  try {
+    return await axios.post("/api/authenticate", { username });
+  } catch (error) {
+    return { error: "Username doesn't exist..!!" };
+  }
+}
+
+//*** get User details***//
+export async function getUser( {username} ) {
+  try {
+    const { data } = await axios.get(`/api/user/${username}`);
+    return { data };
+  } catch (error) {
+    return { error: "Username doesn't exist..!!" };
+  }
+}
+
+//*** register User function***//
+export async function registerUser(credentials) {
+  try {
+    let res = await axios.post("/api/register", credentials);
+    let { username, email } = credentials;
+
+    console.log(res.status , res.data.message);
+    /***send Email ***/
+    // if (res.status === 201) {
+    //   await axios.post("/api/registerMail", {
+    //     username,
+    //     userEmail: email,
+    //     text: res.data.message,
+    //   });
+    // }
+
+    return Promise.resolve(res);
+  } catch (error) {
+    console.log(error.response.data.error);
+    return Promise.reject(error.response.data.error);
+  }
+}
+
+//*** login User function ***//
+export async function login({ username, password }) {
+  try {
+    if (username) {
+      const res = await axios.post("/api/login", { username, password });
+      //console.log(res);
+      return Promise.resolve(res);
+    }
+  }
+  catch (error) {
+      //console.log(error.response.data.error);
+      return Promise.reject(error.response.data.error);
+    }
+
+}
+
+//*** update User function ***//
+export async function updateUser(updateUserData) {
+  try {
+    const token = await localStorage.getItem("token");
+
+    const data = await axios.put("/api/updateUser", updateUserData, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return Promise.resolve({ data });
+  } catch (error) {
+    return Promise.resolve({ error: "Couldn't update user profile...!!" });
+  }
+}
+
+//*** generate OTP  ***//
+export async function generateOTP(username) {
+  try {
+    const { data : {code} , status } = await axios.get("/api/generateOTP", {
+      params: { username : username }
+    });
+
+
+    //send mail with the OTP
+    // if(status === 201){
+    //     let { data : {email} } = await getUser({username}) ;
+    //     //console.log(email);
+    //     let message = `Your password recovery OTP is ${code}. Verify code and recover your password..`
+    //     let subject = "Password recovery OTP"
+    //     await axios.post("/api/registerMail", {
+    //         username,
+    //         userEmail: email,
+    //         text: message,
+    //         subject
+    //       });
+    // }
+
+    return Promise.resolve(code);
+  } catch (error) {
+    return Promise.reject({ error });
+  }
+}
+
+
+
+//*** verify OTP  ***//
+export async function verifyOTP( { username , code }) {
+    try {
+      const { data , status } = await axios.get("/api/verifyOTP", {
+        params: { username , code },
+      });
+      return { data , status };
+
+    } catch (error) {
+        return Promise.reject({ error });
+    }
+  }
+
+//*** Reset Password ***//
+export async function resetPassword( { username , password }) {
+    try {
+      const { data , status } = await axios.put("/api/resetPassword", { username , password });
+      return Promise.resolve({ data , status });
+
+    } catch (error) {
+        return Promise.reject({ error });
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  appcontroller.js
+
+  import User from './../models/User.model.js';
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import OTPGenerator from "otp-generator";
+
+export async function verifyUser(req , res , next) {
+
+    try {
+        const { username } =  req.method == 'GET' ?  req.query : req.body ;
+
+        const findUser = await User.findOne({ username });
+
+        if (!findUser) {
+            return res.status(400).send({ error: `Can't find user with this username ${username}!!` })
+        }
+
+        next();
+    }
+    catch (error) {
+        return res.status(404).send({ error: "Authentication error!!" })
+    }
+
+}
+
+/****** Post Method for Register ******/
+/****** URL:- http://localhost:3001/api/register ******/
+/*@param
+   email: 'j@gmail.com',
+   username: 'jpatel',
+   password: 'j@patel'
+   profile : ''
+   firstname : 'Jigar'
+   lastname : 'Patel'
+   mobile : 9900990099
+   address : 'Surat'
+*/
+export async function Register(req, res) {
+
+    try {
+
+        const { username, password, email, profile } = req.body;
+
+        //check user is already exist or not 
+        let findUser = await User.findOne({ username })
+        if(findUser){
+            return res.status(400).send({ error: "User is already exist, please provide unique username!!" })
+        }
+
+        //check email is already exist or not 
+        let findEmail = await User.findOne({ email })
+        if(findEmail){
+            return res.status(400).send({ error: "Email is already exist, please provide unique Email!!" })
+        }
+
+        //compare password 
+        if (password) {
+            bcrypt.hash(password, 10)
+                .then(hasedpassword => {
+
+                    //create model object for storeing data in mongodb
+                    const user = new User({
+                        username: username,
+                        password: hasedpassword,
+                        email: email,
+                        profile: profile
+                    })
+
+                    //save data in mongodb
+                    user.save()
+                        .then(() => {
+                            return res.status(201).send({
+                                 message: "User registered sucessfully!!",
+                                 username
+                            })
+                        })
+                        .catch(error => {
+                            return res.status(500).send({ error : error })
+                        })
+                })
+                .catch(error => {
+                    return res.status(500).send({
+                        error: "Enable to hased password"
+                    })
+                })
+        }
+
+    } catch (error) {
+        return res.status(500).send({ error: error })
+    }
+
+}
+
+/****** Post Method for Login ******/
+/****** URL:- http://localhost:3001/api/login ******/
+ /*@param
+    username: 'jpatel',
+    password: 'j@patel'
+ */
+export function Login( req , res ) {
+
+    const { username , password } = req.body;
+
+    try {
+
+        User.findOne( {username} )
+            .then( user => {
+                bcrypt.compare(password , user.password)
+                    .then( passwordMatch  => {
+                            
+
+                        if(!passwordMatch) return res.status(400).send({ error: "Invalid Password , please enter right password"});
+                        //create jwt token 
+                        const token = jwt.sign( 
+                                            { 
+                                                userId : user._id ,
+                                                username : user.username
+                                            }, 
+                                            process.env.JWT_SECRET_KEY,
+                                            {
+                                                "expiresIn" : "10d"
+                                            }
+                                     );
+                        
+                        return res.status(200).send({ 
+                            "message": "User Login Sucessfully!!",
+                            "username" : user.username,
+                            "token" : token
+                         })
+                                    
+                    })
+                    .catch(error => {
+                        return res.status(400).send({ error : "Invalid Password!!" })
+                    })
+            
+            })
+            .catch(error => {
+                return res.status(404).send({ error : "Username not Found!!" })
+            })
+    } 
+    catch (error) {
+        return res.status(500).send({ error })
+    }
+    
+}
+
+
+/****** GET Method for GetUser ******/
+/****** URL:- http://localhost:3001/api/user/:username ******/
+ /*@param
+    username: 'jpatel'
+ */
+    export async function GetUser( req , res ) {
+        
+        const { username } = req.params ;
+
+        try {
+
+            if (!username) {
+                return res.status(400).send({ error: "Invalid username!!" })
+            }
+            
+            const user = await User.findOne( {username} );
+            
+            if (!user) {
+                return res.status(400).send({ error: `Can't find user with this username ${username}!!` })
+            }
+
+            //Remove password form user , it is confidentional
+            //mongoose return unnecessary data with object so convert it into json
+            const { password , ...rest } = Object.assign( {} , user.toJSON())
+
+            return res.status(200).send(rest)
+        } 
+        catch (error) {
+            return res.status(500).send({ error: "Can't find user data !!" })
+        }
+
+        
+    }
+
+/****** PUT Method for updateUser ******/
+/****** URL:- http://localhost:3001/api/updateUser ******/
+ /*@param{
+    "header" : "<token>"
+    }
+   @body{
+    firstname : 'Jigar'
+    lastname : 'Patel'
+    address : 'Surat'
+    profile : ''
+    }
+ */ 
+    export async function UpdateUser( req , res ) {
+
+        //const { id } = req.query 
+        const { userId } = req.user ;
+
+        try {
+           
+            const body = req.body;
+                
+            //update user data
+            let updateduser = await User.updateOne({ _id : userId } , body ) 
+
+            if(!updateduser)
+            {
+                return res.status(500).send({ error: "user not updated!!" })
+            }
+            else{
+                return res.status(201).send({ "message": "user updated sucessfully!!" })
+            }
+            
+        } 
+        catch (error) {
+            return res.status(500).send({error})
+        }
+    }
+
+
+/****** GET Method for GenarateOTP ******/
+/****** URL:- http://localhost:3001/api/genarateOTP ******/
+    export async function GenarateOTP( req , res ) {
+        
+        req.app.locals.OTP = await OTPGenerator.generate(6 , {
+                                    lowerCaseAlphabets  : false, 
+                                    upperCaseAlphabets  : false, 
+                                    specialChars : false
+                                  }
+                            )
+
+        res.status(201).send({ code : req.app.locals.OTP })
+    }
+
+/****** GET Method for VerifyOTP ******/
+/****** URL:- http://localhost:3001/api/verifyOTP ******/
+export function VerifyOTP( req , res ) {
+    
+    const { code } = req.query ;
+
+    if(  parseInt(req.app.locals.OTP) === parseInt(code))
+    {
+        //reset OTP value
+        req.app.locals.OTP = null ;
+
+        //start session for reset password
+        req.app.locals.resetSesion = true ;
+
+        return res.status(201).send({ "message" : "Verify OTP successfully!!" })
+    }
+
+    return res.status(400).send({ "message" : "Invalid OTP!!" })
+}
+
+//sucessfully redirect user when OTP is valid
+/****** GET Method for CraeteResetSession ******/
+/****** URL:- http://localhost:3001/api/craeteResetSession ******/
+export function CraeteResetSession( req , res ) {
+    
+    if(req.app.locals.resetSesion){
+
+        //allow access to this route only once
+        req.app.locals.resetSesion = false ;
+
+        return res.status(201).send({ "message" : "Access Granted for reset password!!" })
+    }
+
+    return res.status(401).send({ "message" : "Session expired for reset password!!" })
+}
+
+//update user password when user have valid session
+/****** PUT Method for ResetPassword ******/
+/****** URL:- http://localhost:3001/api/resetPassword ******/
+export async function ResetPassword( req , res ) {
+    
+    if(!req.app.locals.resetSession) 
+        return res.status(401).send({ "message" : "Session expired for reset password!!" })
+
+    try {
+        const { username , password } = req.body ;
+
+        User.findOne({ username })
+        .then(user => {
+            bcrypt.hash(password,10)
+                .then( async (hashedpassword) => {
+
+                    let updatepassword = await User.updateOne( {username : user.username} , { password:hashedpassword} ) 
+                    if(!updatepassword){
+                        return res.status(500).send({ error: "password not updated!!" })
+                    }
+                    else{
+                        req.app.locals.resetSession = false; // reset session
+                        return res.status(201).send({ "message": "Reset Password Sucessfully!!" })
+                    }
+                })
+                .catch(error => {
+                    return res.status(404).send({ error : "Enable to hashed password" })
+                })
+        })
+        .catch(error => {
+            return res.status(404).send({ error : `Can't find user with this username ${username}!!` })
+        })
+
+    }
+    catch (error) {
+        return res.status(401).send({ error })
+    }
+}
