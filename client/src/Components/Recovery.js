@@ -1,8 +1,27 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./../styles/Username.module.css";
-import { Toaster } from "react-hot-toast";
+import toast ,{ Toaster } from "react-hot-toast";
+import { useAuthStore } from "../store/store";
+import { generateOTP } from "../helper/helper";
 
 function Recovery() {
+
+    const { username } = useAuthStore(state => state.auth);
+
+    const [ OTP , setOTP] = useState() ;
+
+    useEffect( () => {
+
+        generateOTP(username)
+            .then( otp => {
+
+                if(otp){
+                   return toast.success('OTP has been send to your registerd email..!!')
+                }
+                return toast.error('Problem while generating OTP..!!')
+            })
+
+    } , [username] )
 
     return (
         <div className="container mx-auto">
@@ -30,6 +49,7 @@ function Recovery() {
                             </span>
                             <input
                                 className={styles.textbox}
+                                onChange={ event => setOTP(event.target.value) }
                                 type="text"
                                 placeholder="OTP"
                             />

@@ -28,9 +28,9 @@ export async function authenticate(username) {
 }
 
 //*** get User details***//
-export async function getUser({ username }) {
+export async function getUser( {username} ) {
   try {
-    const { data } = await axios.get(`/api/user/:${username}`);
+    const { data } = await axios.get(`/api/user/${username}`);
     return { data };
   } catch (error) {
     return { error: "Username doesn't exist..!!" };
@@ -69,9 +69,9 @@ export async function login({ username, password }) {
       return Promise.resolve(res);
     }
   } catch (error) {
-    //console.log(error.response.data.error);
-    return Promise.reject(error.response.data.error);
-  }
+      //console.log(error.response.data.error);
+      return Promise.reject(error.response.data.error);
+    }
 }
 
 //*** update User function ***//
@@ -92,21 +92,22 @@ export async function updateUser(updateUserData) {
 export async function generateOTP(username) {
   try {
     const { data : {code} , status } = await axios.get("/api/generateOTP", {
-      params: { username },
+      params: { username : username }
     });
 
     //send mail with the OTP
-    if(status === 201){
-        let { data : {email} } = await getUser( username ) ;
-        let message = `Your password recovery OTP is ${code}. Verify code and recover your password..`
-        let subject = "Password recovery OTP"
-        await axios.post("/api/registerMail", {
-            username,
-            userEmail: email,
-            text: message,
-            subject
-          });
-    }
+    // if(status === 201){
+    //     let { data : {email} } = await getUser({username}) ;
+    //     //console.log(email);
+    //     let message = `Your password recovery OTP is ${code}. Verify code and recover your password..`
+    //     let subject = "Password recovery OTP"
+    //     await axios.post("/api/registerMail", {
+    //         username,
+    //         userEmail: email,
+    //         text: message,
+    //         subject
+    //       });
+    // }
 
     return Promise.resolve(code);
   } catch (error) {

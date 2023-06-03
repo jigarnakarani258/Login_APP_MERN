@@ -11,7 +11,7 @@ export async function verifyUser(req , res , next) {
         const findUser = await User.findOne({ username });
 
         if (!findUser) {
-            return res.status(400).send({ error: "Can't find user!!" })
+            return res.status(400).send({ error: `Can't find user with this username ${username}!!` })
         }
 
         next();
@@ -105,9 +105,9 @@ export function Login( req , res ) {
         User.findOne( {username} )
             .then( user => {
                 bcrypt.compare(password , user.password)
-                    .then( passwordCheck  => {
-                            
-                        if(!passwordCheck) return res.status(400).send({ error: "Invalid Password , please enter right password"});
+                    .then( passwordMatch  => {                
+
+                        if(!passwordMatch) return res.status(400).send({ error: "Invalid Password , please enter right password"});
                         //create jwt token 
                         const token = jwt.sign( 
                                             { 
@@ -119,7 +119,7 @@ export function Login( req , res ) {
                                                 "expiresIn" : "24h"
                                             }
                                      );
-                            console.log(user.username);
+                        
                         return res.status(200).send({ 
                             "message": "User Login Sucessfully!!",
                             "username" : user.username,
