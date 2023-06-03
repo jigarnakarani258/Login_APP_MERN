@@ -32,7 +32,11 @@ function Register() {
                 error : <b> Couldn't Register User..!! </b>
             });
 
-            registerPromise.then( function(){ navigate('/')})
+            registerPromise
+                .then( function(){ navigate('/')})
+                .catch( err => {
+                    navigate('/register')
+                })
         }
 
     })
