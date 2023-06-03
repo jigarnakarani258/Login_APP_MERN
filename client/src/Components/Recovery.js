@@ -16,7 +16,7 @@ function Recovery() {
         generateOTP(username)
             .then( otp => {
 
-                console.log('OTP send your mail:-',otp);
+                //console.log('OTP send your mail:-',otp);
                 if(otp){
                    return toast.success('OTP has been send to your registerd email..!!')
                 }
@@ -35,7 +35,7 @@ function Recovery() {
         }
       } 
       catch (error) {
-        return toast.error("OTP Verified Failed , check email again..!!");
+        return toast.error("OTP Verification Failed , check email again..!!");
       }
 
     }
@@ -50,7 +50,7 @@ function Recovery() {
         })
 
         resendOtpPromise.then( otp => {
-            console.log('Resend OTP:-',otp);
+            //console.log('Resend OTP:-',otp);
         })
     }
 

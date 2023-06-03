@@ -113,7 +113,7 @@ function Register() {
                         <div className="text-center py-4">
                             <span>
                                 Already Register?
-                                <Link className="text-red-500" to='/login'>
+                                <Link className="text-red-500" to='/'>
                                     Login now
                                 </Link>
                             </span>
