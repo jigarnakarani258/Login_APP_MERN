@@ -105,10 +105,10 @@ function emailVerify(error = {}, values){
 
 /** validate firstname */
 function firstnameVerify(error = {}, values){
-    if(!values.firstname){
-        error.firstname = toast.error('firstname Required...!');
-    }else if(values.firstname.includes(" ")){
-        error.firstname = toast.error('firstname can not contains blank space...!')
+    if(!values.firstName){
+        error.firstName = toast.error('firstName Required...!');
+    }else if(values.firstName.includes(" ")){
+        error.firstName = toast.error('firstName can not contains blank space...!')
     }else{
 
     }
@@ -118,10 +118,10 @@ function firstnameVerify(error = {}, values){
 
 /** validate lastname */
 function lastnameVerify(error = {}, values){
-    if(!values.lastname){
-        error.lastname = toast.error('lastname Required...!');
-    }else if(values.lastname.includes(" ")){
-        error.lastname = toast.error('lastname can not contains blank space...!')
+    if(!values.lastName){
+        error.lastName = toast.error('lastName Required...!');
+    }else if(values.lastName.includes(" ")){
+        error.lastName = toast.error('lastName can not contains blank space...!')
     }else{
 
     }

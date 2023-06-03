@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import avatar from './../assets/profile.png'
 import styles from "./../styles/Username.module.css";
 import toast,{ Toaster } from "react-hot-toast";
@@ -9,6 +9,8 @@ import imageToBase64Converter from "../helper/imageToBase64Converter";
 import { registerUser } from "../helper/helper";
 
 function Register() {
+
+    const navigate = useNavigate();
 
     const [file, setFile] = useState()
     const formik = useFormik({
@@ -29,6 +31,8 @@ function Register() {
                 success : <b>Register Successfully..!!</b>,
                 error : <b> Couldn't Register User..!! </b>
             });
+
+            registerPromise.then( function(){ navigate('/')})
         }
 
     })

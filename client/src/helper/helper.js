@@ -1,8 +1,22 @@
 import axios from "axios";
+import jwt_decode from "jwt-decode";
 
 axios.defaults.baseURL = process.env.REACT_APP_SERVER_DOMAIN
 
 /**************Make API requests **************/
+
+//*** to get username from token  ***//
+export async function getUsernameFromToken(username) {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    return Promise.reject("Can't find token");
+  }
+
+  let decode = jwt_decode(token);
+  return decode;
+}
+
 
 //*** authenticate User ***//
 export async function authenticate(username) {
@@ -50,11 +64,13 @@ export async function registerUser(credentials) {
 export async function login({ username, password }) {
   try {
     if (username) {
-      const { data } = await axios.post("/api/login", { username, password });
-      return Promise.resolve({ data });
+      const res = await axios.post("/api/login", { username, password });
+      //console.log(res);
+      return Promise.resolve(res);
     }
   } catch (error) {
-    return Promise.resolve({ error: "Password doesn't match...!!" });
+    //console.log(error.response.data.error);
+    return Promise.reject(error.response.data.error);
   }
 }
 

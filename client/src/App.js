@@ -14,10 +14,6 @@ import  PageNotFound from "./Components/PageNotFound";
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <div> Home Route</div>
-  },
-  {
-    path: '/username',
     element: <Username/>
   },
   {
