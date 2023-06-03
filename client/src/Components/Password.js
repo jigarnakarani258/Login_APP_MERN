@@ -20,7 +20,7 @@ function Password() {
 
     const formik = useFormik({
         initialValues : {
-            password : ''
+            password : 'Jigs@123'
         },
         validate : passwordValidate ,
         validateOnBlur : false ,

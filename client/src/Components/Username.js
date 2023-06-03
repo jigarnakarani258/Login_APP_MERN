@@ -14,7 +14,7 @@ function Username() {
 
     const formik = useFormik({
         initialValues : {
-            username : ''
+            username : 'Jigs'
         },
         validate : usernameValidate ,
         validateOnBlur : false ,

@@ -19,14 +19,14 @@ function Reset() {
 
     const formik = useFormik({
         initialValues : {
-            password : '',
-            confirmPassword : ''
+            password : 'Jigs@123',
+            confirmPassword : 'Jigs@123'
         },
         validate : resetPasswordValidate ,
         validateOnBlur : false ,
         validateOnChange : false ,
         onSubmit : async values => {
-             
+
             let resetPasswordPromise = resetPassword( { username , password : values.password }) ;
 
             toast.promise( resetPasswordPromise , {
