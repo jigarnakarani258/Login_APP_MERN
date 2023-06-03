@@ -45,13 +45,14 @@ export async function registerUser(credentials) {
 
     console.log(res.status , res.data.message);
     /***send Email ***/
-    // if (res.status === 201) {
-    //   await axios.post("/api/registerMail", {
-    //     username,
-    //     userEmail: email,
-    //     text: res.data.message,
-    //   });
-    // }
+    if (res.status === 201) {
+      await axios.post("/api/registerMail", {
+        username,
+        userEmail: email,
+        text: res.data.message,
+        subject : "Login APP - Sign up process"
+      });
+    }
 
     return Promise.resolve(res);
   } catch (error) {

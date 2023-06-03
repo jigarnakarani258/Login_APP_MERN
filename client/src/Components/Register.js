@@ -15,9 +15,9 @@ function Register() {
     const [file, setFile] = useState()
     const formik = useFormik({
         initialValues: {
-            email: 'jd@gmail.com',
-            username: 'jd',
-            password: 'jd@123'
+            email: 'nakaranijigs258@gmail.com',
+            username: 'Jigs',
+            password: 'Jigs@123'
         },
         validate: registerFormValiadate,
         validateOnBlur: false,

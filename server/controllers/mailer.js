@@ -1,8 +1,10 @@
+import dotenv from "dotenv";
+dotenv.config();
 import nodemailer from "nodemailer";
 import Mailgen from "mailgen";
 
 let configOptions = {
-    host: "smtp.ethwreal.com",
+    host: "smtp.gmail.com",
     port: 587,
     secure: false,
     requireTLS: true,
@@ -38,20 +40,12 @@ export const registerMail = async ( req , res ) => {
 
     //create body of email
     var email = {
-        body: {
+        body : {
             name: username,
-            intro: text || 'Welcome to JN_InfoTech! We are very excited to have you on board.',
-            action: {
-                instructions: 'To get started with Mailgen, please click here:',
-                button: {
-                    color: '#22BC66', // Optional action button color
-                    text: 'Confirm your account',
-                    link: 'https://mailgen.js/confirm?s=d9729feb74992cc3482b350163a1a010'
-                }
-            },
+            intro: text || `Welcome to Jigar's Login! We are very excited to have you on board.`,
             outro: 'Need help, or have questions? Just reply to this email, we\'d love to help.'
         }
-    };
+    }
 
     // Generate an HTML email with the provided contents
     var emailBody = mailGenerator.generate(email);
@@ -59,7 +53,7 @@ export const registerMail = async ( req , res ) => {
     var mailOptions = {
         from : process.env.EMAIL ,
         to: userEmail ,
-        subject: subject || 'SignUP Process',
+        subject: subject || 'Login APP',
         html: emailBody
     }
 
