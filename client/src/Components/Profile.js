@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import avatar from './../assets/profile.png'
 import toast, { Toaster } from "react-hot-toast";
 import { useFormik } from "formik";
@@ -10,7 +10,6 @@ import styles from "./../styles/Username.module.css";
 import extendStyles from "./../styles/Profile.module.css";
 
 import useFetch from "../hooks/fetch.hook";
-import { useAuthStore } from "../store/store";
 import { updateUser } from "../helper/helper";
 
 function Profile() {
@@ -20,7 +19,7 @@ function Profile() {
   
     const  [getData]  = useFetch();
 
-    const { isLoading , apiData, serverError , status } = getData ;
+    const { isLoading , apiData, serverError  } = getData ;
 
     const [file, setFile] = useState()
     const formik = useFormik({

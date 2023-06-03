@@ -97,18 +97,17 @@ export async function generateOTP(username) {
     });
 
     //send mail with the OTP
-    // if(status === 201){
-    //     let { data : {email} } = await getUser({username}) ;
-    //     //console.log(email);
-    //     let message = `Your password recovery OTP is ${code}. Verify code and recover your password..`
-    //     let subject = "Password recovery OTP"
-    //     await axios.post("/api/registerMail", {
-    //         username,
-    //         userEmail: email,
-    //         text: message,
-    //         subject
-    //       });
-    // }
+    if(status === 201){
+        let { data : {email} } = await getUser({username}) ;
+        let message = `Your password recovery OTP is ${code}. Verify code and recover your password..`
+        let subject = "Login APP - password recovery OTP"
+        await axios.post("/api/registerMail", {
+            username,
+            userEmail: email,
+            text: message,
+            subject
+          });
+    }
 
     return Promise.resolve(code);
   } catch (error) {

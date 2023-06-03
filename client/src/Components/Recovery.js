@@ -2,26 +2,57 @@ import React, { useEffect, useState } from "react";
 import styles from "./../styles/Username.module.css";
 import toast ,{ Toaster } from "react-hot-toast";
 import { useAuthStore } from "../store/store";
-import { generateOTP } from "../helper/helper";
+import { generateOTP, verifyOTP } from "../helper/helper";
+import { useNavigate } from "react-router-dom";
 
 function Recovery() {
 
     const { username } = useAuthStore(state => state.auth);
-
     const [ OTP , setOTP] = useState() ;
+    const navigate = useNavigate();
 
     useEffect( () => {
 
         generateOTP(username)
             .then( otp => {
 
+                console.log('OTP send your mail:-',otp);
                 if(otp){
                    return toast.success('OTP has been send to your registerd email..!!')
                 }
                 return toast.error('Problem while generating OTP..!!')
-            })
-
+            })     
     } , [username] )
+
+    async function onSubmitHandler(event) {
+      event.preventDefault();
+
+      try {
+        let res = await verifyOTP({ username, code: OTP });
+        if (res.status === 201) {
+          toast.success("OTP Verified Successfully..!!");
+          return navigate("/reset");
+        }
+      } 
+      catch (error) {
+        return toast.error("OTP Verified Failed , check email again..!!");
+      }
+
+    }
+
+    function resendOTP(){
+        let resendOtpPromise =  generateOTP(username);
+
+        toast.promise( resendOtpPromise , {
+            loading : 'sending otp..',
+            success : <b> OTP has been resend on your email..!!</b>,
+            error : <b> could not send otp..!!</b>
+        })
+
+        resendOtpPromise.then( otp => {
+            console.log('Resend OTP:-',otp);
+        })
+    }
 
     return (
         <div className="container mx-auto">
@@ -40,7 +71,7 @@ function Recovery() {
                         </span>
                     </div>
 
-                    <form className="pt-25"  >
+                    <form className="pt-25"   onSubmit={onSubmitHandler} >
 
                         <div className="textbox flex flex-col items-center gap-6">
 
@@ -61,16 +92,17 @@ function Recovery() {
 
                         </div>
 
-                        <div className="text-center py-4">
+                    </form>
+
+                    <div className="text-center py-4">
                             <span>
                                 Can't get OTP?
                                 <button
                                     className={"text-red-500"}
+                                    onClick={resendOTP}
                                 > Resend OTP </button>
                             </span>
-                        </div>
-
-                    </form>
+                    </div>
 
                 </div>
             </div>
