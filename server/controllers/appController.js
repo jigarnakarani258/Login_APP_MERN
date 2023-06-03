@@ -242,7 +242,7 @@ export function VerifyOTP( req , res ) {
         req.app.locals.OTP = null ;
 
         //start session for reset password
-        req.app.locals.resetSesion = true ;
+        req.app.locals.resetSession = true ;
 
         return res.status(201).send({ "message" : "Verify OTP successfully!!" })
     }
@@ -251,19 +251,15 @@ export function VerifyOTP( req , res ) {
 }
 
 //sucessfully redirect user when OTP is valid
-/****** GET Method for CraeteResetSession ******/
-/****** URL:- http://localhost:3001/api/craeteResetSession ******/
-export function CraeteResetSession( req , res ) {
-    
-    if(req.app.locals.resetSesion){
-
-        //allow access to this route only once
-        req.app.locals.resetSesion = false ;
-
-        return res.status(201).send({ "message" : "Access Granted for reset password!!" })
+/****** GET Method for CreateResetSession ******/
+/****** URL:- http://localhost:3001/api/createResetSession ******/
+export function CreateResetSession( req , res ) {
+  
+    if(req.app.locals.resetSession){
+        return res.status(201).send({ flag : req.app.locals.resetSession })
     }
 
-    return res.status(401).send({ "message" : "Session expired for reset password!!" })
+    return res.status(440).send({ "error" : "Session expired for reset password!!" })
 }
 
 //update user password when user have valid session
@@ -272,7 +268,7 @@ export function CraeteResetSession( req , res ) {
 export async function ResetPassword( req , res ) {
     
     if(!req.app.locals.resetSession) 
-        return res.status(401).send({ "message" : "Session expired for reset password!!" })
+       return res.status(440).send({ "error" : "Session expired for reset password!!" })
 
     try {
         const { username , password } = req.body ;

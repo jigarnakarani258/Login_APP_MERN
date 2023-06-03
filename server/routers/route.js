@@ -1,5 +1,5 @@
 import {Router} from "express";
-import  {Register, Login, GetUser, UpdateUser , GenarateOTP , VerifyOTP , CraeteResetSession, ResetPassword,
+import  {Register, Login, GetUser, UpdateUser , GenarateOTP , VerifyOTP , CreateResetSession, ResetPassword,
     verifyUser }  from "../controllers/appController.js";
 const router = Router();
 import Auth , { localVariables } from "./../middlewares/auth.js";
@@ -16,7 +16,7 @@ router.route('/login').post( verifyUser , Login ) //login in app
 router.route('/user/:username').get( GetUser )   //user with username
 router.route('/generateOTP').get( verifyUser , localVariables,  GenarateOTP )   //generate random OTP
 router.route('/verifyOTP').get( verifyUser , VerifyOTP)       //verify generated OTP
-router.route('/createResetSession').get( CraeteResetSession ) //reset all the variables
+router.route('/createResetSession').get( CreateResetSession ) //reset all the variables
 
 
 /************ PUT method  *************/

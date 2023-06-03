@@ -929,7 +929,7 @@ export function VerifyOTP( req , res ) {
         req.app.locals.OTP = null ;
 
         //start session for reset password
-        req.app.locals.resetSesion = true ;
+        req.app.locals.resetSession = true ;
 
         return res.status(201).send({ "message" : "Verify OTP successfully!!" })
     }
@@ -938,14 +938,14 @@ export function VerifyOTP( req , res ) {
 }
 
 //sucessfully redirect user when OTP is valid
-/****** GET Method for CraeteResetSession ******/
-/****** URL:- http://localhost:3001/api/craeteResetSession ******/
-export function CraeteResetSession( req , res ) {
+/****** GET Method for CreateResetSession ******/
+/****** URL:- http://localhost:3001/api/CreateResetSession ******/
+export function CreateResetSession( req , res ) {
     
-    if(req.app.locals.resetSesion){
+    if(req.app.locals.resetSession){
 
         //allow access to this route only once
-        req.app.locals.resetSesion = false ;
+        req.app.locals.resetSession = false ;
 
         return res.status(201).send({ "message" : "Access Granted for reset password!!" })
     }
